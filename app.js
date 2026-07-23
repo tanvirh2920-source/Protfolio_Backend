@@ -20,25 +20,20 @@ const {
 const app = express();
 
 // ─── Core Middlewares ─────────────────────────────────────────
-app.use(
-  helmet({
-    hsts: false, // Vercel handles HTTPS, disabling to prevent redirect issues
-  }),
-);
+app.use(helmet({ hsts: false }));
 
-// Handle OPTIONS preflight before CORS
-app.options("*", (req, res) => {
-  res.sendStatus(204);
-});
-
+// CORS — must be before all routes
 app.use(
   cors({
-    origin: true, // reflect the request origin — allows all origins
+    origin: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );
+
+// Handle OPTIONS preflight for all routes
+app.options("*", cors());
 
 app.use(express.json({ limit: "10kb" }));
 
