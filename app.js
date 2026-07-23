@@ -20,7 +20,16 @@ const {
 const app = express();
 
 // ─── Core Middlewares ─────────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    hsts: false, // Vercel handles HTTPS, disabling to prevent redirect issues
+  }),
+);
+
+// Handle OPTIONS preflight before CORS
+app.options("*", (req, res) => {
+  res.sendStatus(204);
+});
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
