@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS portfolio_settings (
   location     VARCHAR(255)  NOT NULL DEFAULT 'Dhaka, Bangladesh',
   github_url   VARCHAR(500)           DEFAULT 'https://github.com/tanvir',
   linkedin_url VARCHAR(500)           DEFAULT 'https://linkedin.com/in/tanvir',
-  twitter_url  VARCHAR(500)           DEFAULT 'https://twitter.com/tanvir',
+  facebook_url  VARCHAR(500)           DEFAULT 'https://facebook.com/username',
   resume_url   VARCHAR(500)           DEFAULT '/Tanvir_Hasan_CV.pdf',
   updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
   -- Stats counters
