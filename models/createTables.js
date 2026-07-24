@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const { pool, ensureDatabase } = require('../database/db');
+const fs = require("fs");
+const path = require("path");
+const { pool, ensureDatabase } = require("../database/db");
 
 /**
  * Initialize database tables and run necessary schema migrations.
@@ -8,11 +8,11 @@ const { pool, ensureDatabase } = require('../database/db');
 async function createTables() {
   await ensureDatabase();
 
-  const schemaPath = path.join(__dirname, 'schema.sql');
+  const schemaPath = path.join(__dirname, "schema.sql");
   try {
-    const sql = fs.readFileSync(schemaPath, 'utf8');
+    const sql = fs.readFileSync(schemaPath, "utf8");
     await pool.query(sql);
-    console.log('✅ Schema tables verified.');
+    console.log("✅ Schema tables verified.");
 
     // Database column migrations
     const migrations = [
@@ -21,6 +21,7 @@ async function createTables() {
       "ALTER TABLE portfolio_settings ADD COLUMN IF NOT EXISTS stat_repos INTEGER DEFAULT 30",
       "ALTER TABLE portfolio_settings ADD COLUMN IF NOT EXISTS stat_coffee INTEGER DEFAULT 999",
       "ALTER TABLE portfolio_settings ADD COLUMN IF NOT EXISTS about_text TEXT",
+      "ALTER TABLE portfolio_settings ADD COLUMN IF NOT EXISTS facebook_url VARCHAR(500)",
     ];
 
     for (const m of migrations) {
@@ -30,9 +31,9 @@ async function createTables() {
         // column may already exist
       }
     }
-    console.log('✅ Migrations checked.');
+    console.log("✅ Migrations checked.");
   } catch (err) {
-    console.error('❌ Table creation failed:', err.message);
+    console.error("❌ Table creation failed:", err.message);
     throw err;
   }
 }
