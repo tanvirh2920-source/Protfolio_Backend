@@ -68,12 +68,22 @@ async function sendContactEmail(name, email, message) {
       </div>
     `;
 
+    // Send confirmation to form submitter
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: `Portfolio Contact: ${name}`,
       html: htmlBody,
       replyTo: process.env.EMAIL_USER,
+    });
+
+    // Send notification to admin
+    await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      subject: `New Portfolio Message from ${name}`,
+      html: htmlBody,
+      replyTo: email,
     });
 
     console.log(`Contact email sent for message from ${name} <${email}>`);
