@@ -59,6 +59,63 @@ app.use("/api/messages", messageLimiter, messagesRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/upload", uploadRouter);
 
+// ─── Test Email Endpoint (Debug) ──────────────────────────────
+app.post("/api/test-email", async (req, res) => {
+  const nodemailer = require("nodemailer");
+
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return res.status(400).json({
+        success: false,
+        error: "Email credentials not configured",
+      });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || "smtp.gmail.com",
+      port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // Verify connection
+    await transporter.verify();
+
+    // Send test email
+    const result = await transporter.sendMail({
+      from: `"Portfolio Test" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      subject: "🧪 Portfolio Backend - Test Email",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;">
+          <h2>✅ Email System Working!</h2>
+          <p>This is a test email from your Portfolio backend.</p>
+          <p><strong>Sent at:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>From:</strong> ${process.env.EMAIL_USER}</p>
+          <p><strong>To:</strong> ${process.env.EMAIL_TO || process.env.EMAIL_USER}</p>
+        </div>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "✅ Test email sent successfully!",
+      messageId: result.messageId,
+      recipient: process.env.EMAIL_TO || process.env.EMAIL_USER,
+    });
+  } catch (error) {
+    console.error("❌ Test email failed:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      hint: "Check your Email credentials in .env file",
+    });
+  }
+});
+
 // ─── Error Handlers ──────────────────────────────────────────
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

@@ -23,7 +23,7 @@ async function sendContactEmail(name, email, message) {
       !process.env.EMAIL_PASS ||
       process.env.EMAIL_USER === "your.email@gmail.com"
     ) {
-      console.log("Email not configured — skipping notification.");
+      console.log("⚠️ Email not configured — skipping notification.");
       return;
     }
 
@@ -36,6 +36,11 @@ async function sendContactEmail(name, email, message) {
         pass: process.env.EMAIL_PASS,
       },
     });
+
+    // Test connection first
+    console.log("🔄 Verifying SMTP connection...");
+    await transporter.verify();
+    console.log("✅ SMTP connection verified!");
 
     const safeName = escapeHtml(name);
     const safeEmail = escapeHtml(email);
@@ -69,6 +74,7 @@ async function sendContactEmail(name, email, message) {
     `;
 
     // Send confirmation to form submitter
+    console.log(`📧 Sending confirmation to ${email}...`);
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -76,8 +82,12 @@ async function sendContactEmail(name, email, message) {
       html: htmlBody,
       replyTo: process.env.EMAIL_USER,
     });
+    console.log(`✅ Confirmation email sent to ${email}`);
 
     // Send notification to admin
+    console.log(
+      `📧 Sending notification to ${process.env.EMAIL_TO || process.env.EMAIL_USER}...`,
+    );
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO || process.env.EMAIL_USER,
@@ -85,10 +95,13 @@ async function sendContactEmail(name, email, message) {
       html: htmlBody,
       replyTo: email,
     });
-
-    console.log(`Contact email sent for message from ${name} <${email}>`);
+    console.log(
+      `✅ Admin notification sent to ${process.env.EMAIL_TO || process.env.EMAIL_USER}`,
+    );
   } catch (error) {
-    console.error("Failed to send contact email:", error.message);
+    console.error("❌ Failed to send contact email:", error.message);
+    console.error("📍 Error code:", error.code);
+    console.error("📍 Error details:", error);
   }
 }
 
