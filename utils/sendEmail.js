@@ -1,15 +1,15 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 /**
  * Escape HTML entities to prevent XSS in email templates.
  */
 function escapeHtml(str) {
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /**
@@ -18,14 +18,17 @@ function escapeHtml(str) {
  */
 async function sendContactEmail(name, email, message) {
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || 
-        process.env.EMAIL_USER === 'your.email@gmail.com') {
-      console.log('Email not configured — skipping notification.');
+    if (
+      !process.env.EMAIL_USER ||
+      !process.env.EMAIL_PASS ||
+      process.env.EMAIL_USER === "your.email@gmail.com"
+    ) {
+      console.log("Email not configured — skipping notification.");
       return;
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      host: process.env.EMAIL_HOST || "smtp.gmail.com",
       port: parseInt(process.env.EMAIL_PORT, 10) || 587,
       secure: false,
       auth: {
@@ -34,9 +37,9 @@ async function sendContactEmail(name, email, message) {
       },
     });
 
-    const safeName    = escapeHtml(name);
-    const safeEmail   = escapeHtml(email);
-    const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
 
     const htmlBody = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a2e; border-radius: 12px; overflow: hidden;">
@@ -67,15 +70,15 @@ async function sendContactEmail(name, email, message) {
 
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      to: email,
       subject: `Portfolio Contact: ${name}`,
       html: htmlBody,
-      replyTo: email,
+      replyTo: process.env.EMAIL_USER,
     });
 
     console.log(`Contact email sent for message from ${name} <${email}>`);
   } catch (error) {
-    console.error('Failed to send contact email:', error.message);
+    console.error("Failed to send contact email:", error.message);
   }
 }
 
